@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SRH26 — Adicionar à agenda</title>
+<style>
+  :root{
+    --preto:#0c0b09;
+    --carvao:#17150f;
+    --borda:#302a1c;
+    --ouro:#d4af6a;
+    --ouro-forte:#e8c887;
+    --texto:#f4f1ea;
+    --suave:#a49c8a;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1200px 500px at 50% -10%, #2a2210 0%, transparent 60%),
+      var(--preto);
+    color:var(--texto);
+    font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    min-height:100vh;
+    display:flex;justify-content:center;
+    padding:32px 20px calc(32px + env(safe-area-inset-bottom));
+  }
+  .wrap{width:100%;max-width:400px}
+
+  header{text-align:center;margin-bottom:26px}
+  .marca{
+    font-size:44px;line-height:1;letter-spacing:.14em;font-weight:700;
+    background:linear-gradient(180deg,var(--ouro-forte),var(--ouro));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .assinatura{
+    margin-top:8px;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--suave);
+  }
+  .regua{
+    width:52px;height:1px;margin:18px auto 0;
+    background:linear-gradient(90deg,transparent,var(--ouro),transparent);
+  }
+
+  .cartao{
+    background:var(--carvao);border:1px solid var(--borda);border-radius:14px;
+    padding:18px 20px;margin-bottom:26px;
+  }
+  .linha{display:flex;gap:12px;padding:9px 0;font-size:14px}
+  .linha + .linha{border-top:1px solid rgba(255,255,255,.05)}
+  .linha .rot{color:var(--suave);min-width:66px;flex-shrink:0}
+  .linha .val{color:var(--texto)}
+  .linha .val small{display:block;color:var(--suave);font-size:12.5px;margin-top:2px}
+
+  .chamada{
+    text-align:center;font-size:14px;color:var(--suave);
+    margin:0 0 14px;
+  }
+
+  a.opcao{
+    display:flex;align-items:center;gap:13px;
+    text-decoration:none;color:var(--texto);
+    background:var(--carvao);border:1px solid var(--borda);
+    border-radius:12px;padding:14px 16px;margin-bottom:10px;
+    font-size:15px;font-weight:500;
+    transition:border-color .15s, background .15s;
+  }
+  a.opcao:active{background:#1f1c13;border-color:var(--ouro)}
+  a.opcao .ico{
+    width:30px;height:30px;flex-shrink:0;border-radius:8px;
+    display:grid;place-items:center;font-size:14px;font-weight:700;
+    background:rgba(212,175,106,.12);color:var(--ouro);
+  }
+  a.opcao .seta{margin-left:auto;color:var(--suave);font-size:18px;line-height:1}
+  a.opcao small{display:block;font-weight:400;font-size:12.5px;color:var(--suave);margin-top:1px}
+
+  .nota{
+    margin-top:22px;text-align:center;font-size:12.5px;color:var(--suave);line-height:1.6;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="marca">SRH26</div>
+    <div class="assinatura">SIMgular Acrisure</div>
+    <div class="regua"></div>
+  </header>
+
+  <div class="cartao">
+    <div class="linha"><span class="rot">Data</span><span class="val">12 de novembro de 2026<small>quinta-feira</small></span></div>
+    <div class="linha"><span class="rot">Horário</span><span class="val">13h às 18h30</span></div>
+    <div class="linha"><span class="rot">Local</span><span class="val">Hospital Mater Dei Contorno<small>Av. do Contorno, 9000 — Barro Preto<br>Belo Horizonte/MG</small></span></div>
+  </div>
+
+  <p class="chamada">Escolha onde quer adicionar o evento</p>
+
+  <div id="opcoes"></div>
+
+  <p class="nota">
+    Evento presencial.<br>Sem transmissão simultânea e sem gravação.
+  </p>
+
+</div>
+
+<script>
+(function () {
+  // ---------------- dados do evento ----------------
+  var EV = {
+    titulo: "SRH26 | SIMgular Acrisure",
+    local: "Hospital Mater Dei Contorno - Av. do Contorno, 9000, Barro Preto, Belo Horizonte/MG",
+    detalhe: "Evento presencial no Hospital Mater Dei Contorno. Sem transmissao simultanea e sem gravacao.",
+    utcInicio: "20261112T160000Z",      // 13:00 de Brasilia
+    utcFim:    "20261112T213000Z",      // 18:30 de Brasilia
+    localInicio: "2026-11-12T13:00:00", // Outlook: sem fuso, lido no fuso da pessoa
+    localFim:    "2026-11-12T18:30:00",
+    yahooInicio: "20261112T130000",     // Yahoo: sem fuso tambem
+    yahooFim:    "20261112T183000",
+    ics: "SRH26-SIMgular-Acrisure.ics"  // arquivo na mesma pasta desta pagina
+  };
+
+  var e = encodeURIComponent;
+
+  var links = {
+    google:
+      "https://calendar.google.com/calendar/render?action=TEMPLATE" +
+      "&text=" + e(EV.titulo) +
+      "&dates=" + EV.utcInicio + "/" + EV.utcFim +
+      "&location=" + e(EV.local) +
+      "&details=" + e(EV.detalhe) +
+      "&ctz=" + e("America/Sao_Paulo"),
+
+    outlookPessoal: outlook("outlook.live.com"),
+    outlookTrabalho: outlook("outlook.office.com"),
+
+    yahoo:
+      "https://calendar.yahoo.com/?v=60" +
+      "&TITLE=" + e(EV.titulo) +
+      "&ST=" + EV.yahooInicio +
+      "&ET=" + EV.yahooFim +
+      "&DESC=" + e(EV.detalhe) +
+      "&in_loc=" + e(EV.local),
+
+    apple: EV.ics
+  };
+
+  function outlook(host) {
+    return "https://" + host + "/calendar/0/deeplink/compose" +
+      "?path=" + e("/calendar/action/compose") +
+      "&rru=addevent" +
+      "&subject=" + e(EV.titulo) +
+      "&startdt=" + e(EV.localInicio) +
+      "&enddt=" + e(EV.localFim) +
+      "&location=" + e(EV.local) +
+      "&body=" + e(EV.detalhe);
+  }
+
+  // ---------------- botoes ----------------
+  var OPCOES = [
+    { ico: "G",  nome: "Google Calendar",   sub: "Gmail e Android",        url: links.google },
+    { ico: "O",  nome: "Outlook",           sub: "Hotmail e Outlook.com",  url: links.outlookPessoal },
+    { ico: "O",  nome: "Outlook do trabalho", sub: "Microsoft 365",        url: links.outlookTrabalho },
+    { ico: "Y",  nome: "Yahoo Calendar",    sub: "Yahoo Mail",             url: links.yahoo },
+    { ico: "A",  nome: "Apple / iCloud",    sub: "iPhone, iPad e Mac",     url: links.apple, baixar: true }
+  ];
+
+  var box = document.getElementById("opcoes");
+
+  OPCOES.forEach(function (o) {
+    var a = document.createElement("a");
+    a.className = "opcao";
+    a.href = o.url;
+    a.rel = "noopener";
+    if (!o.baixar) a.target = "_blank";
+
+    var ico = document.createElement("span");
+    ico.className = "ico";
+    ico.textContent = o.ico;
+
+    var txt = document.createElement("span");
+    txt.innerHTML = "";
+    txt.appendChild(document.createTextNode(o.nome));
+    var sub = document.createElement("small");
+    sub.textContent = o.sub;
+    txt.appendChild(sub);
+
+    var seta = document.createElement("span");
+    seta.className = "seta";
+    seta.textContent = "›";
+
+    a.appendChild(ico);
+    a.appendChild(txt);
+    a.appendChild(seta);
+    box.appendChild(a);
+  });
+})();
+</script>
+</body>
+</html>

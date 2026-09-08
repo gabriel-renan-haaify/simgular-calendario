@@ -1,0 +1,31 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Haaify//SRH26 SIMgular Acrisure//PT-BR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:srh26-2026-11-12@simgular.acrisure
+DTSTAMP:20260903T120000Z
+SEQUENCE:0
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+DTSTART:20261112T160000Z
+DTEND:20261112T213000Z
+SUMMARY:SRH26 | SIMgular Acrisure
+LOCATION:Hospital Mater Dei Contorno - Av. do Contorno\, 9000\, Barro Pret
+ o\, Belo Horizonte/MG
+DESCRIPTION:SRH26 | SIMgular Acrisure\n\nEvento presencial no Hospital Mat
+ er Dei Contorno.\nSem transmissao simultanea e sem gravacao.\n\nInscricao
+  confirmada pelo WhatsApp do evento.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:SRH26 | SIMgular Acrisure
+TRIGGER:-PT1440M
+END:VALARM
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:SRH26 | SIMgular Acrisure
+TRIGGER:-PT60M
+END:VALARM
+END:VEVENT
+END:VCALENDAR
