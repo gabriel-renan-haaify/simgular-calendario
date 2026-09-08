@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SRH26 — abrindo no seu navegador</title>
+
+<script>
+/* PONTE PARA SAIR DO NAVEGADOR DO WHATSAPP
+ *
+ * O botao do WhatsApp (cta_url) so aceita http/https, entao ele sempre cai no
+ * navegador interno. Esta pagina e o pulo: ela abre la dentro e, de dentro,
+ * entrega o destino para o navegador do aparelho usando um esquema que o
+ * sistema operacional reconhece.
+ *
+ * iOS   -> x-safari-https://  (o iOS entrega ao Safari)
+ *          PRECISA chegar como <meta http-equiv="refresh"> durante a analise
+ *          do HTML. Feito por window.location dentro de um webview, o iOS
+ *          descarta em silencio. Por isso o document.write aqui no <head>.
+ * Android -> intent://  ... #Intent;scheme=https;...;end
+ *          O Chrome exige TOQUE do usuario; redirecionamento automatico nao
+ *          dispara. Por isso no Android e um botao, nao um salto sozinho.
+ */
+(function () {
+  var DESTINO = "https://gabriel-renan-haaify.github.io/simgular-calendario/";
+  var ua = navigator.userAgent || "";
+
+  window.__SRH26 = {
+    destino: DESTINO,
+    ehApple: /iPad|iPhone|iPod/.test(ua),
+    ehAndroid: /Android/.test(ua)
+  };
+
+  if (window.__SRH26.ehApple) {
+    document.write(
+      '<meta http-equiv="refresh" content="0;url=x-safari-' + DESTINO + '">'
+    );
+  }
+})();
+</script>
+
+<style>
+  :root{
+    --preto:#0c0b09; --carvao:#17150f; --borda:#302a1c;
+    --ouro:#d4af6a; --ouro-forte:#e8c887; --texto:#f4f1ea; --suave:#a49c8a;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{
+    margin:0;min-height:100vh;
+    background:radial-gradient(1200px 500px at 50% -10%, #2a2210 0%, transparent 60%), var(--preto);
+    color:var(--texto);
+    font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    display:flex;align-items:center;justify-content:center;
+    padding:32px 22px calc(32px + env(safe-area-inset-bottom));
+    text-align:center;
+  }
+  .wrap{width:100%;max-width:360px}
+  .marca{
+    font-size:40px;line-height:1;letter-spacing:.14em;font-weight:700;text-indent:.14em;
+    background:linear-gradient(180deg,var(--ouro-forte),var(--ouro));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .assinatura{margin-top:8px;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--suave)}
+  .regua{width:52px;height:1px;margin:20px auto 26px;background:linear-gradient(90deg,transparent,var(--ouro),transparent)}
+  .aviso{font-size:14px;color:var(--suave);margin:0 0 22px}
+  a.botao{
+    display:block;text-decoration:none;border-radius:12px;padding:15px 18px;
+    font-size:15px;font-weight:600;
+    background:linear-gradient(180deg,var(--ouro-forte),var(--ouro));color:#14130f;
+  }
+  a.aqui{
+    display:block;margin-top:14px;text-decoration:none;font-size:13.5px;
+    color:var(--suave);border-bottom:1px solid transparent;
+  }
+  a.aqui u{text-decoration:none;border-bottom:1px solid rgba(212,175,106,.4)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="marca">SRH26</div>
+  <div class="assinatura">SIMgular Acrisure</div>
+  <div class="regua"></div>
+
+  <p class="aviso" id="aviso">Abrindo no seu navegador…</p>
+
+  <a class="botao" id="botao" href="#">Abrir no navegador</a>
+  <a class="aqui" id="aqui" hidden href="#"><u>Continuar aqui mesmo</u></a>
+</div>
+
+<script>
+(function () {
+  var S = window.__SRH26;
+  var botao = document.getElementById("botao");
+  var aqui  = document.getElementById("aqui");
+  var aviso = document.getElementById("aviso");
+
+  aqui.href = S.destino;
+
+  if (S.ehAndroid) {
+    // Sem "package=" o Android usa o navegador padrao do aparelho.
+    // Para forcar o Chrome, acrescente  package=com.android.chrome;
+    // S.browser_fallback_url garante que ninguem fica preso se der errado.
+    var semEsquema = S.destino.replace(/^https?:\/\//, "");
+    botao.href =
+      "intent://" + semEsquema + "#Intent;scheme=https;" +
+      "S.browser_fallback_url=" + encodeURIComponent(S.destino) + ";end";
+    aviso.textContent = "Toque para abrir no navegador do seu celular.";
+  } else if (S.ehApple) {
+    // O <meta refresh> ja disparou. O botao fica como segunda tentativa.
+    botao.href = "x-safari-" + S.destino;
+  } else {
+    // Computador ou navegador comum: nao ha do que escapar.
+    botao.href = S.destino;
+    aviso.textContent = "Abrindo a página do evento…";
+    setTimeout(function () { location.replace(S.destino); }, 200);
+  }
+
+  // Rede de seguranca: se em 2,5s ainda estamos aqui, oferece seguir sem sair.
+  setTimeout(function () {
+    aqui.hidden = false;
+    aviso.textContent = "Não abriu sozinho? Use o botão acima.";
+  }, 2500);
+})();
+</script>
+</body>
+</html>
