@@ -98,6 +98,11 @@
 
   <div id="opcoes"></div>
 
+  <p class="nota" id="socorro" hidden>
+    Não abriu o Calendário? Toque em <strong>&#183;&#183;&#183;</strong> no canto e escolha
+    <strong>Abrir no Safari</strong>.
+  </p>
+
   <p class="nota">
     Evento presencial.<br>Sem transmissão simultânea e sem gravação.
   </p>
@@ -113,8 +118,9 @@
     detalhe: "Evento presencial no Hospital Mater Dei Contorno. Sem transmissao simultanea e sem gravacao.",
     utcInicio: "20261112T160000Z",      // 13:00 de Brasilia
     utcFim:    "20261112T213000Z",      // 18:30 de Brasilia
-    localInicio: "2026-11-12T13:00:00", // Outlook: sem fuso, lido no fuso da pessoa
-    localFim:    "2026-11-12T18:30:00",
+    // Outlook aceita UTC com Z; cada conta converte para o proprio fuso.
+    isoInicio: "2026-11-12T16:00:00Z", // 13:00 de Brasilia
+    isoFim:    "2026-11-12T21:30:00Z", // 18:30 de Brasilia
     yahooInicio: "20261112T130000",     // Yahoo: sem fuso tambem
     yahooFim:    "20261112T183000",
     ics: "SRH26-SIMgular-Acrisure.ics"  // arquivo na mesma pasta desta pagina
@@ -150,19 +156,31 @@
       "?path=" + e("/calendar/action/compose") +
       "&rru=addevent" +
       "&subject=" + e(EV.titulo) +
-      "&startdt=" + e(EV.localInicio) +
-      "&enddt=" + e(EV.localFim) +
+      "&startdt=" + e(EV.isoInicio) +
+      "&enddt=" + e(EV.isoFim) +
       "&location=" + e(EV.local) +
       "&body=" + e(EV.detalhe);
   }
 
   // ---------------- botoes ----------------
+  // No navegador interno do WhatsApp, um link .ics abre como TEXTO na tela em vez
+  // de ir para o calendario. O esquema webcal:// nao passa pelo navegador: o iOS e
+  // o macOS entregam direto para o app Calendario. Por isso a linha da Apple usa
+  // webcal quando o aparelho e Apple, e o .ics normal no resto.
+  var ua = navigator.userAgent || "";
+  var ehApple = /iPad|iPhone|iPod|Macintosh/.test(ua);
+
+  var webcal = "webcal://" + location.host +
+               location.pathname.replace(/[^/]*$/, "") + EV.ics;
+
   var OPCOES = [
     { ico: "G",  nome: "Google Calendar",   sub: "Gmail e Android",        url: links.google },
     { ico: "O",  nome: "Outlook",           sub: "Hotmail e Outlook.com",  url: links.outlookPessoal },
     { ico: "O",  nome: "Outlook do trabalho", sub: "Microsoft 365",        url: links.outlookTrabalho },
     { ico: "Y",  nome: "Yahoo Calendar",    sub: "Yahoo Mail",             url: links.yahoo },
-    { ico: "A",  nome: "Apple / iCloud",    sub: "iPhone, iPad e Mac",     url: links.apple, baixar: true }
+    ehApple
+      ? { ico: "A", nome: "Apple / iCloud", sub: "iPhone, iPad e Mac", url: webcal, apple: true }
+      : { ico: "A", nome: "Outro calendário", sub: "Baixar arquivo .ics", url: links.apple, baixar: true }
   ];
 
   var box = document.getElementById("opcoes");
@@ -194,6 +212,8 @@
     a.appendChild(seta);
     box.appendChild(a);
   });
+
+  if (ehApple) document.getElementById("socorro").hidden = false;
 })();
 </script>
 </body>
