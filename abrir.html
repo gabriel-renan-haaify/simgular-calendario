@@ -7,20 +7,21 @@
 
 <script>
 (function () {
-  var DESTINO = "https://gabriel-renan-haaify.github.io/simgular-calendario/";
+  var DESTINO =
+    "https://gabriel-renan-haaify.github.io/simgular-calendario/";
+
   var ua = navigator.userAgent || "";
+
+  var ehApple =
+    /iPad|iPhone|iPod/.test(ua) ||
+    (navigator.platform === "MacIntel" &&
+     navigator.maxTouchPoints > 1);
 
   window.__SRH26 = {
     destino: DESTINO,
-    ehApple: /iPad|iPhone|iPod/.test(ua),
+    ehApple: ehApple,
     ehAndroid: /Android/.test(ua)
   };
-
-  if (window.__SRH26.ehApple) {
-    document.write(
-      '<meta http-equiv="refresh" content="0;url=x-safari-' + DESTINO + '">'
-    );
-  }
 })();
 </script>
 
@@ -74,36 +75,95 @@
 <script>
 (function () {
   var S = window.__SRH26;
+
   var botao = document.getElementById("botao");
-  var aqui  = document.getElementById("aqui");
   var aviso = document.getElementById("aviso");
 
-  aqui.href = S.destino;
+  function tentarAbrirExternamente() {
 
-  if (S.ehAndroid) {
-    // Sem "package=" o Android usa o navegador padrao do aparelho.
-    // Para forcar o Chrome, acrescente  package=com.android.chrome;
-    // S.browser_fallback_url garante que ninguem fica preso se der errado.
-    var semEsquema = S.destino.replace(/^https?:\/\//, "");
-    botao.href =
-      "intent://" + semEsquema + "#Intent;scheme=https;" +
-      "S.browser_fallback_url=" + encodeURIComponent(S.destino) + ";end";
-    aviso.textContent = "Toque para abrir no navegador do seu celular.";
-  } else if (S.ehApple) {
-    // O <meta refresh> ja disparou. O botao fica como segunda tentativa.
-    botao.href = "x-safari-" + S.destino;
-  } else {
-    // Computador ou navegador comum: nao ha do que escapar.
+    // ---------------- ANDROID ----------------
+
+    if (S.ehAndroid) {
+
+      var semEsquema =
+        S.destino.replace(/^https?:\/\//, "");
+
+      var intentUrl =
+        "intent://" +
+        semEsquema +
+        "#Intent;" +
+        "scheme=https;" +
+        "action=android.intent.action.VIEW;" +
+        "category=android.intent.category.BROWSABLE;" +
+        "S.browser_fallback_url=" +
+        encodeURIComponent(S.destino) +
+        ";end";
+
+      botao.href = intentUrl;
+
+      aviso.textContent =
+        "Abrindo no navegador do seu celular…";
+
+      // tentativa automática
+      window.location.href = intentUrl;
+
+      return;
+    }
+
+
+    // ---------------- IPHONE / IPAD ----------------
+
+    if (S.ehApple) {
+
+      var safariUrl =
+        "x-safari-" + S.destino;
+
+      botao.href = safariUrl;
+
+      aviso.textContent =
+        "Abrindo no navegador…";
+
+      // tentativa automática
+      window.location.href = safariUrl;
+
+      return;
+    }
+
+
+    // ---------------- COMPUTADOR ----------------
+
     botao.href = S.destino;
-    aviso.textContent = "Abrindo a página do evento…";
-    setTimeout(function () { location.replace(S.destino); }, 200);
+
+    aviso.textContent =
+      "Abrindo a página do evento…";
+
+    setTimeout(function () {
+      location.replace(S.destino);
+    }, 200);
   }
 
-  // Rede de seguranca: se em 2,5s ainda estamos aqui, oferece seguir sem sair.
+
+  // Caso a abertura automática seja bloqueada,
+  // o botão tenta exatamente a mesma operação.
+  botao.addEventListener("click", function () {
+    tentarAbrirExternamente();
+  });
+
+
+  // ---------------- ABERTURA AUTOMÁTICA ----------------
+
   setTimeout(function () {
-    aqui.hidden = false;
-    aviso.textContent = "Não abriu sozinho? Use o botão abaixo.";
-  }, 2500);
+    tentarAbrirExternamente();
+  }, 150);
+
+
+  // Se depois de um tempo a pessoa continuar nesta tela,
+  // presumimos que o navegador interno bloqueou a tentativa.
+  setTimeout(function () {
+    aviso.textContent =
+      "Não abriu automaticamente? Toque no botão abaixo.";
+  }, 2000);
+
 })();
 </script>
 </body>
