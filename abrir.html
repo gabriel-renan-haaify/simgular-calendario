@@ -6,21 +6,6 @@
 <title>SRH26 — abrindo no seu navegador</title>
 
 <script>
-/* PONTE PARA SAIR DO NAVEGADOR DO WHATSAPP
- *
- * O botao do WhatsApp (cta_url) so aceita http/https, entao ele sempre cai no
- * navegador interno. Esta pagina e o pulo: ela abre la dentro e, de dentro,
- * entrega o destino para o navegador do aparelho usando um esquema que o
- * sistema operacional reconhece.
- *
- * iOS   -> x-safari-https://  (o iOS entrega ao Safari)
- *          PRECISA chegar como <meta http-equiv="refresh"> durante a analise
- *          do HTML. Feito por window.location dentro de um webview, o iOS
- *          descarta em silencio. Por isso o document.write aqui no <head>.
- * Android -> intent://  ... #Intent;scheme=https;...;end
- *          O Chrome exige TOQUE do usuario; redirecionamento automatico nao
- *          dispara. Por isso no Android e um botao, nao um salto sozinho.
- */
 (function () {
   var DESTINO = "https://gabriel-renan-haaify.github.io/simgular-calendario/";
   var ua = navigator.userAgent || "";
@@ -84,7 +69,6 @@
   <p class="aviso" id="aviso">Abrindo no seu navegador…</p>
 
   <a class="botao" id="botao" href="#">Abrir no navegador</a>
-  <a class="aqui" id="aqui" hidden href="#"><u>Continuar aqui mesmo</u></a>
 </div>
 
 <script>
@@ -118,7 +102,7 @@
   // Rede de seguranca: se em 2,5s ainda estamos aqui, oferece seguir sem sair.
   setTimeout(function () {
     aqui.hidden = false;
-    aviso.textContent = "Não abriu sozinho? Use o botão acima.";
+    aviso.textContent = "Não abriu sozinho? Use o botão abaixo.";
   }, 2500);
 })();
 </script>
